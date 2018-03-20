@@ -1,2 +1,2 @@
 # PyMENACE
-Tick Tack Toe machine learning in python
+A python implementation of MENACE.

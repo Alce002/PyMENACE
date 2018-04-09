@@ -17,25 +17,19 @@ class Board(object):
     def update(self, pos, player):
         # Takes pos as (x, y) coordinates
         #       player as a string 'X' or 'O'
-        # Returns player if it won
-        #         0 if the game goes on
-        #         1 if the game is a draw
+        # Returns 0 if the move is accepted
+        #        -1 if the move is invalid
         if self.verify_move(pos, player):
             x, y = pos
             self.current_state[y][x] = player
             self.current_player = 'X' if player == 'O' else 'O'
-            win = self.is_win()
-            if win == 2:
-                self.current_player = None
-                return player
-            else:
-                return win
+            return 0
         return -1
 
     def is_win(self):
         # Returns 0 if the game continues
         #         1 if the game is a draw
-        #         2 if there is a winner
+        #         the winner if there is a winner
         state = self.current_state
         for i in range(3):
             r0 = state[i][0]
@@ -43,22 +37,22 @@ class Board(object):
             if r0:
                 if state[i][1] and state[i][1] == r0:
                     if state[i][2] and state[i][2] == r0:
-                        return 2
+                        return r0
             if c0:
                 if state[1][i] and state[1][i] == c0:
                     if state[2][i] and state[2][i] == c0:
-                        return 2
+                        return c0
 
         d0 = state[0][0]
         d1 = state[0][2]
         if d0:
             if state[1][1] and state[1][1] == d0:
                 if state[2][2] and state[2][2] == d0:
-                    return 2
+                    return d0
         if d1:
             if state[1][1] and state[1][1] == d1:
                 if state[2][0] and state[2][0] == d1:
-                    return 2
+                    return d1
 
         for row in state:
             for col in row:
@@ -87,17 +81,20 @@ if __name__ == '__main__':
                 print(col, end=' ')
             print()
 
-        x, y = [int(i) for i in input('> ').split(',')]
-        print()
-        return b.update((x, y), p)
+        pos = [int(i) for i in input('> ').split(',')]
+        while not b.update(pos, p):
+            pos = [int(i) for i in input('> ').split(',')]
 
     b = Board()
     p = 'X'
-    w = loop(p)
-    while not w:
+    loop(p)
+    while not b.is_win():
         p = 'X' if p == 'O' else 'O'
-        w = loop(p)
+        loop(p)
 
     print()
-    print('Winner is:', w)
+    if type(b.is_win()).__name__ == 'str':
+        print('Winner is:', b.is_win())
+    else:
+        print("It's a draw!")
     input()

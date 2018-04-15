@@ -20,7 +20,9 @@ def PickMove(position):
     if len(position) == 1:
         return position[0][0]
     l=[]
+    '''
     print(position)
+    '''
     for n in range(len(position)):
         l.append(sigm(position[n][1],len(position)))
     k=random.random()
@@ -32,9 +34,13 @@ def PickMove(position):
     for n in l:
 
         a2-=n
+        '''
         print(a1, k, a2)
+        '''
         if a1>=k>a2:
+            '''
             print(l)
+            '''
             return position[counter][0]
         a1=a2
         counter+=1
@@ -66,24 +72,33 @@ def WeightAdj(index,tup,wl,posList):
         if wl==tomove:
             if sigm(testList[movenum][1],len(testList))<0.9999999:
                 testList[movenum][1]+=1
+            else:
+                return
 
         else:
             if sigm(testList[movenum][1],len(testList))>0.0000001:
                 testList[movenum][1]-=1
+            else:
+                return
         if len(testList) > 1:
-            fract=(1-sigm(testList[movenum][1],len(testList))/(1-sigm(oldW,len(posList[index]))))
+            fract=(1-sigm(testList[movenum][1],len(testList)))/(1-sigm(oldW,len(testList)))
+            if sigm(testList[movenum][1],len(testList))==sigm(oldW,len(testList)):    #Just in case
+                fract=1
+
             for n in range(len(testList)):
                 if tup in testList[n]:
                     pass
                 else:
                     y=sigm(testList[n][1],len(testList))
-
-
-                    testList[n][1]=invertsigm(y*fract,len(testList))
+                    if y*fract<=1:
+                        testList[n][1]=invertsigm(y*fract,len(testList))
+                    else:
+                        return
         sumtest=0
         for n in testList:
             sumtest+=sigm(n[1], len(testList))
-        if abs(1-sumtest)<0.0000000001:
+        # print(sumtest)
+        if abs(1-sumtest)<0.000000000001:
             posList[index]=testList
 
 

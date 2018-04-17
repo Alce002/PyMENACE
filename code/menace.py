@@ -45,6 +45,7 @@ class MENACE(object):
     def update(self, wl):
         for i, cord in self.hist:
             w.WeightAdj(i, cord, wl, self.positions)
+        self.hist = []
 
     def save(self):
         pos_backup = {}

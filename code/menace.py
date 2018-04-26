@@ -14,6 +14,11 @@ class MENACE(object):
         self.hist = []
         self.name = name
         self.load()
+
+    def verify_position(self, pos):
+        # Check that a position is valid for use in position list
+        # Return: True if position is valid
+        #         False if position is invalid
    def rotate(self, board):            #Input board must be copy  
         clone = []
         for n in board:
@@ -90,6 +95,10 @@ class MENACE(object):
             return True
         return False
 
+    def gen_positions(self):
+        # Returns a dictionary with all valid positions keyed
+        # to open moves and initial weights
+        # Example entry: 'XOXOXO000': [[(0, 2), 0], [(1, 2), 0], [(2, 2), 0]]
    def gen_positions(self):
         positions = {}
         
@@ -109,6 +118,8 @@ class MENACE(object):
 
         return positions
 
+    def gen_move(self, board):
+        # Generates a weightedly random move
    def gen_move(self, board):
         counter = 0
         verify = False
@@ -145,6 +156,9 @@ class MENACE(object):
 
         self.hist.append([s, move])
         return move
+
+    def random(self, board):
+        # Generates a truly random move
         
         
    def random(self, board):
@@ -155,13 +169,17 @@ class MENACE(object):
         move = random.choice(self.positions[s])[0]
         return move
 
+    def update(self, wl):
+        # Updates all weights for concerned moves in history
    def update(self, wl):
         for i, cord in self.hist:
             w.WeightAdj(i, cord, wl, self.positions)
 
+    def save(self):
+        # Saves weightlist to text file
    def save(self):
         pos_backup = {}
-        with open(self.name + '.txt', 'r') as f:
+        with open(self.name + '.dat', 'r') as f:
             for line in f.readlines():
                 row = line.split(',')
                 pos_backup[row[0]] = row[1:-1]
@@ -170,23 +188,25 @@ class MENACE(object):
             for i in range(len(pos_backup[k])):
                 pos_backup[k][i] = str(self.positions[k][i][1])
 
-        with open(self.name + '.txt', 'w') as f:
+        with open(self.name + '.dat', 'w') as f:
             for k in pos_backup.keys():
                 f.write(k + ',')
                 for e in pos_backup[k]:
                     f.write(e + ',')
                 f.write('\n')
 
+    def load(self):
+        # Load weightlist from text file, create new file if not exist
    def load(self):
         try:
-            with open(self.name + '.txt', 'r') as f:
+            with open(self.name + '.dat', 'r') as f:
                 for line in f.readlines():
                     row = line.split(',')
                     for i in range(len(row) - 2):
                         self.positions[row[0]][i][1] = float(row[i + 1])
 
         except IOError:
-            with open(self.name + '.txt', 'w') as f:
+            with open(self.name + '.dat', 'w') as f:
                 for k in self.positions.keys():
                     f.write(k + ',')
                     for i in self.positions[k]:

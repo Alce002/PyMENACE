@@ -2,16 +2,48 @@ import itertools
 import random
 import weighting as w
 random.seed()
+import itertools
+import random
+import weighting as w
+random.seed()
 
 
 class MENACE(object):
-    def __init__(self, name):
+   def __init__(self, name):
         self.positions = self.gen_positions()
         self.hist = []
         self.name = name
         self.load()
-
-    def verify_position(self, pos):
+   def rotate(self, board):            #Input board must be copy  
+        clone = []
+        for n in board:
+            clone.append(list(n))
+        for y in range(3):
+            for x in range(3):
+                tup = (x-1,y-1)
+                
+                turn = (y-1,-x+1)
+                
+                board[turn[1]+1][turn[0]+1] = clone[y][x]
+                
+        return board
+   def rotate_move(self, move, n):
+        if n>0:
+            x = move[0]-1
+            y = move[1]-1
+            for _ in range(4-n):
+               
+                c = x
+                x = y
+                y = -c
+                
+            x += 1
+            y += 1
+            return x , y
+        else:
+            return move
+         
+   def verify_position(self, pos, position):
         Xs = 0
         Os = 0
         for c in pos:
@@ -19,7 +51,9 @@ class MENACE(object):
                 Xs += 1
             if c == 'O':
                 Os += 1
-        pos = [pos[0:3], pos[3:6], pos[6:9]]
+        pos = [list(pos[0:3]), list(pos[3:6]), list(pos[6:9])]
+
+        
         if (Xs == Os) or (Xs == Os + 1):
             for i in range(3):
                 r0 = pos[i][0]
@@ -43,13 +77,24 @@ class MENACE(object):
                 if pos[1][1] == d1:
                     if pos[2][0] == d1:
                         return False
+            
+            for n in range (3):
+                s=""
+                positions = position
+                reference = self.rotate(pos)
+                for n in reference:
+                    for e in n:
+                        s += str(e)
+                if s in positions.keys():
+                    return False
             return True
         return False
 
-    def gen_positions(self):
+   def gen_positions(self):
         positions = {}
+        
         for i in itertools.product('0XO', repeat=9):
-            if self.verify_position(i[:]):
+            if self.verify_position(i[:],positions):
                 str = ''
                 for e in i:
                     str += e
@@ -64,21 +109,45 @@ class MENACE(object):
 
         return positions
 
-    def gen_move(self, board):
+   def gen_move(self, board):
+        counter = 0
+        verify = False
+      
         s = ''
+        
         for _, e in board():
             s += str(e)
+   
+        board_clone = [list(s[0:3]),list(s[3:6]),list(s[6:9])]
+                       
+        
+        while s not in self.positions.keys():
+            board_clone = self.rotate(board_clone)
 
+            s = ''
+
+            for k in board_clone:
+               for n in k:
+                  s += n
+            
+            counter += 1
+            
+                 
+           
         move = w.PickMove(self.positions[s])
+        return (self.rotate_move(move,counter))
+
         if move[0] == -1:
             print(move[1])
             print(sum(move[1]))
             raise(Exception)
+        # move = random.choice(self.positions[s])[0]
 
         self.hist.append([s, move])
         return move
-
-    def random(self, board):
+        
+        
+   def random(self, board):
         s = ''
         for _, e in board():
             s += str(e)
@@ -86,12 +155,11 @@ class MENACE(object):
         move = random.choice(self.positions[s])[0]
         return move
 
-    def update(self, wl):
+   def update(self, wl):
         for i, cord in self.hist:
             w.WeightAdj(i, cord, wl, self.positions)
-        self.hist = []
 
-    def save(self):
+   def save(self):
         pos_backup = {}
         with open(self.name + '.txt', 'r') as f:
             for line in f.readlines():
@@ -109,7 +177,7 @@ class MENACE(object):
                     f.write(e + ',')
                 f.write('\n')
 
-    def load(self):
+   def load(self):
         try:
             with open(self.name + '.txt', 'r') as f:
                 for line in f.readlines():
@@ -131,3 +199,4 @@ if __name__ == '__main__':
     for i in list(app.positions.keys())[:5]:
         print(i)
         print(app.positions[i])
+

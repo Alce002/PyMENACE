@@ -10,7 +10,7 @@ class TicTacToe(canvas.Window):
         super().__init__("TicTacToe", '../assets/icon.png', size)
         # Objects
         self.board = board.Board()
-        self.menace = menace.MENACE('MENACE1')
+        self.menace = menace.MENACE('MENACE0')
 
         # Main menu buttons
         self.b_PvP = canvas.Button(self, pg.Rect(160, 5, 80, 20), 'PvP')

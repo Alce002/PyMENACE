@@ -136,16 +136,8 @@ class MENACE(object):
             counter += 1
 
         move = w.PickMove(self.positions[s])
-        self.hist.append((s, move))
-        return (self.rotate_move(move, counter))
-
-        if move[0] == -1:
-            print(move[1])
-            print(sum(move[1]))
-            raise(Exception)
-
         self.hist.append([s, move])
-        return move
+        return (self.rotate_move(move, counter))
 
     def random(self, board):
         # Generates a truly random move
@@ -160,9 +152,10 @@ class MENACE(object):
         # Updates all weights for concerned moves in history
         for i, cord in self.hist:
             w.WeightAdj(i, cord, wl, self.positions)
+        self.hist = []
 
     def save(self):
-        # Saves weightlist to text file
+        # Saves weightslist to text file
         pos_backup = {}
         with open(self.name + '.dat', 'r') as f:
             for line in f.readlines():

@@ -67,6 +67,12 @@ def WeightAdj(index,tup,wl,posList):
             if tup in testList[n]:
                 movenum=n
                 break
+    else:
+        print('movenum not set')
+        print('tup: ', tup)
+        print('testList: ', testList)
+        raise(Exception)
+    
     oldW=testList[movenum][1]
     if wl!=1:
         if wl==tomove:
@@ -97,7 +103,7 @@ def WeightAdj(index,tup,wl,posList):
         sumtest=0
         for n in testList:
             sumtest+=sigm(n[1], len(testList))
-        # print(sumtest)
+        #print(sumtest)
         if abs(1-sumtest)<0.000000000001:
             posList[index]=testList
 

@@ -38,16 +38,26 @@ class TicTacToe(canvas.Window):
         self.cell_size = 100  # Size of a game cell
         self.player = 'X'  # Current player
         self.state = 'menu'  # Current state
+        self.updated = False  # Menace update flag
         # False: No AI, X: AI plays X, O: AI plays O, XO: AI plays X&O
         self.ai = 'X'
 
     # Reset game
     def reset(self):
+        print('Clearing game data')
         self.board = board.Board()
         self.menace.hist = []
         self.player = 'X'
+        self.updated = False
 
     # ____Event handlers____
+    def on_quit(self, event):
+        print('Saving menace to', self.menace.name)
+        self.menace.save()
+        self.running = False
+        print('Menace saved')
+        print('Exiting')
+
     def on_mouse_down(self, event):
         # Handle "menu" state
         if self.state == 'menu':
@@ -55,6 +65,7 @@ class TicTacToe(canvas.Window):
                 self.reset()
                 self.ai = False
                 self.state = 'game'
+                print('Starting PvP game')
 
             if self.b_PvC.is_hover(event.pos):
                 self.reset()
@@ -64,19 +75,22 @@ class TicTacToe(canvas.Window):
                 self.reset()
                 self.ai = 'XO'
                 self.state = 'game'
+                print('Starting CvC game')
 
             if self.b_quit.is_hover(event.pos):
-                self.running = False
+                pg.event.post(pg.event.Event(pg.QUIT, {}))
 
         # Handle "player_select" state
         elif self.state == 'player_select':
             if self.b_pX.is_hover(event.pos):
                 self.ai = 'O'
                 self.state = 'game'
+                print('Starting PvC game')
 
             if self.b_pO.is_hover(event.pos):
                 self.ai = 'X'
                 self.state = 'game'
+                print('Starting CvP game')
 
             if self.b_back.is_hover(event.pos):
                 self.state = 'menu'
@@ -89,12 +103,14 @@ class TicTacToe(canvas.Window):
             if self.board.is_win():
                 if self.b_replay.is_hover(event.pos):
                     self.reset()
+                    print('Starting new game')
 
             else:
                 x, y = pg.mouse.get_pos()
                 x = (x - 50) // self.cell_size
                 y = (y - 50) // self.cell_size
                 if not self.board.update((x, y), self.player):
+                    print('Player(' + self.player + ') makes move:', (x, y))
                     self.player = 'O' if self.player == 'X' else 'X'
 
     # ____Update methods____
@@ -126,10 +142,27 @@ class TicTacToe(canvas.Window):
                 self.l_winner.set_text("It's a draw!")
             else:
                 self.l_winner.set_text(self.board.is_win() + ' wins!')
+            if not self.updated:
+                print('Win state:', self.board.is_win())
+                print('Updating menace')
+                self.menace.update(self.board.is_win())
+                self.updated = True
+                print('Menace updated')
 
             self.l_winner.draw()
             self.b_replay.draw()
 
+        # Allow the AI to make its move on correct turn
+        if not self.board.is_win():
+            if self.ai and self.player in self.ai and not self.board.is_win():
+                if self.ai == 'XO':
+                    time.sleep(0.1)
+                move = self.menace.gen_move(self.board.output_board)
+                print('Menace(' + self.player + ') makes move:', move)
+                self.board.update(move, self.player)
+                self.player = 'O' if self.player == 'X' else 'X'
+
+        # Draw current board state
         for cord, p in self.board.output_board():
             rect = pg.Rect((50 + cord[0] * self.cell_size,
                             50 + cord[1] * self.cell_size),
@@ -140,20 +173,10 @@ class TicTacToe(canvas.Window):
                 self.canvas.blit(self.O_tile, rect.topleft)
             pg.draw.rect(self.canvas, (0, 0, 0), rect, 1)
 
-        # Allow the AI to make its move on correct turn
-        if not self.board.is_win():
-            if self.ai and self.player in self.ai and not self.board.is_win():
-                if self.ai == 'XO':
-                    time.sleep(0.1)
-                move = self.menace.gen_move(self.board.output_board)
-                while self.board.update(move, self.player) == -1:
-                    move = self.menace.gen_move(self.board.output_board)
-                self.player = 'O' if self.player == 'X' else 'X'
-
     def state_error(self):
         # Called if application enters an undefined state
         print("Internal State Error")
-        self.running = False
+        pg.event.post(pg.event.Event(pg.QUIT, {}))
 
 
 if __name__ == '__main__':

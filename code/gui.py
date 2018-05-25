@@ -3,21 +3,28 @@ import pygame as pg
 import canvas
 import board
 import menace
+import trainer
 
 
 class TicTacToe(canvas.Window):
-    def __init__(self, size):
-        super().__init__("TicTacToe", '../assets/icon.png', size)
+    def __init__(self, name):
+        super().__init__("TicTacToe", '../assets/icon.png', (400, 400))
         # Objects
         self.board = board.Board()
-        self.menace = menace.MENACE('MENACE0')
+        self.menace = menace.MENACE(name)
 
         # Main menu buttons
         self.b_PvP = canvas.Button(self, pg.Rect(160, 5, 80, 20), 'PvP')
         self.b_PvC = canvas.Button(self, pg.Rect(160, 30, 80, 20), 'PvC')
         self.b_CvC = canvas.Button(self, pg.Rect(160, 55, 80, 20), 'CvC')
+        self.b_train = canvas.Button(self, pg.Rect(160, 105, 80, 20), 'Train')
         self.b_quit = canvas.Button(self, pg.Rect(150, 375, 100, 20),
                                     'Quit', (255, 0, 0))
+
+        # Main menu button labels
+        self.l_train = canvas.Label(self, pg.Rect(0, 125, 400, 30),
+                                    'The display will freeze, \
+see debug log for progress.')
 
         # Player Select menu buttons
         self.b_pX = canvas.Button(self, pg.Rect(150, 5, 100, 20), 'Play as X')
@@ -28,13 +35,14 @@ class TicTacToe(canvas.Window):
         self.b_menu = canvas.Button(self, pg.Rect(50, 5, 100, 20), 'Menu')
         self.b_replay = canvas.Button(self, pg.Rect(250, 5, 100, 20), 'Replay')
         # Game menu labels
-        self.l_winner = canvas.Label(self, pg.Rect(160, 5, 80, 20), 'None')
+        self.l_winner = canvas.Label(self, pg.Rect(150, 5, 100, 20), 'None')
 
         # Images
         self.X_tile = pg.image.load('../assets/X_tile.png')
         self.O_tile = pg.image.load('../assets/O_tile.png')
 
         # Internal settings
+        self.name = name  # Menace file name
         self.cell_size = 100  # Size of a game cell
         self.player = 'X'  # Current player
         self.state = 'menu'  # Current state
@@ -76,6 +84,14 @@ class TicTacToe(canvas.Window):
                 self.ai = 'XO'
                 self.state = 'game'
                 print('Starting CvC game')
+
+            if self.b_train.is_hover(event.pos):
+                self.reset()
+                print('Starting training session')
+                self.menace.save()
+                trainer.train(self.name, 50000)
+                self.menace = menace.MENACE(self.name)
+                print('Training done')
 
             if self.b_quit.is_hover(event.pos):
                 pg.event.post(pg.event.Event(pg.QUIT, {}))
@@ -122,20 +138,23 @@ class TicTacToe(canvas.Window):
         state()
 
     def menu(self):
-        # Draw menu screen
+        # Draw menu
         self.b_PvP.draw()
         self.b_PvC.draw()
         self.b_CvC.draw()
+        self.b_train.draw()
+        if self.b_train.is_hover(pg.mouse.get_pos()):
+            self.l_train.draw()
         self.b_quit.draw()
 
     def player_select(self):
-        # Draw player select screen
+        # Draw player select menu
         self.b_pX.draw()
         self.b_pO.draw()
         self.b_back.draw()
 
     def game(self):
-        # Draw game screen
+        # Draw game menu
         self.b_menu.draw()
         if self.board.is_win():
             if self.board.is_win() == 1:
@@ -180,5 +199,5 @@ class TicTacToe(canvas.Window):
 
 
 if __name__ == '__main__':
-    app = TicTacToe((400, 400))
+    app = TicTacToe('MENACE0')
     app.mainloop()

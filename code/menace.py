@@ -6,19 +6,18 @@ random.seed()
 
 class MENACE(object):
     def __init__(self, name):
-        self.positions = self.gen_positions()
-        self.hist = []
-        self.name = name
+        self.positions = self.gen_positions()  # All playable positions
+        self.hist = []  # Menace move history
+        self.name = name  # Used for determining file name
         self.load()
 
-    def rotate(self, board):  # Input board must be copy
+    def rotate(self, board):
+        # Rotates current board 90 degrees (clockwise)
         clone = []
         for n in board:
             clone.append(list(n))
         for y in range(3):
             for x in range(3):
-                tup = (x-1, y-1)
-
                 turn = (y-1, -x+1)
 
                 board[turn[1]+1][turn[0]+1] = clone[y][x]
@@ -26,6 +25,7 @@ class MENACE(object):
         return board
 
     def rotate_move(self, move, n):
+        # Rotates suggested move to a playable move
         if n > 0:
             x = move[0]-1
             y = move[1]-1
@@ -115,8 +115,6 @@ class MENACE(object):
     def gen_move(self, board):
         # Generates a move based on stored weights
         counter = 0
-        verify = False
-
         s = ''
 
         for _, e in board():
@@ -139,14 +137,29 @@ class MENACE(object):
         self.hist.append([s, move])
         return (self.rotate_move(move, counter))
 
-    def random(self, board):
+    def random(self, board, save=False):
         # Generates a truly random move
+        counter = 0
+
         s = ''
         for _, e in board():
             s += str(e)
 
+        board_clone = [list(s[0:3]), list(s[3:6]), list(s[6:9])]
+        while s not in self.positions.keys():
+            board_clone = self.rotate(board_clone)
+
+            s = ''
+            for k in board_clone:
+                for n in k:
+                    s += n
+
+            counter += 1
+
         move = random.choice(self.positions[s])[0]
-        return move
+        if save:
+            self.hist.append([s, move])
+        return (self.rotate_move(move, counter))
 
     def update(self, wl):
         # Updates all weights for concerned moves in history

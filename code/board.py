@@ -1,8 +1,9 @@
 class Board(object):
     def __init__(self):
+        # Current board state
         self.current_state = [[0 for _ in range(3)] for _ in range(3)]
-        self.hist = {'X': [], 'O': []}
-        self.current_player = 'X'
+        self.hist = {'X': [], 'O': []}  # Game history
+        self.current_player = 'X'  # Current expected player
 
     def verify_move(self, pos, player):
         # Returns True if the correct player sends av valid move

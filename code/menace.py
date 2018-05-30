@@ -169,6 +169,7 @@ class MENACE(object):
 
     def save(self):
         # Saves weightslist to text file
+        print('Saving menace to ' + self.name + '.dat')
         pos_backup = {}
         with open(self.name + '.dat', 'r') as f:
             for line in f.readlines():
@@ -185,9 +186,11 @@ class MENACE(object):
                 for e in pos_backup[k]:
                     f.write(e + ',')
                 f.write('\n')
+        print('Menace saved')
 
     def load(self):
         # Load weightlist from text file, create new file if not exist
+        print('Loading menace from ' + self.name + '.dat')
         try:
             with open(self.name + '.dat', 'r') as f:
                 for line in f.readlines():
@@ -202,3 +205,4 @@ class MENACE(object):
                     for i in self.positions[k]:
                         f.write(str(i[1]) + ',')
                     f.write('\n')
+        print('Menace loaded')

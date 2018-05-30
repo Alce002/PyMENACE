@@ -42,7 +42,6 @@ see debug log for progress.')
         self.O_tile = pg.image.load('../assets/O_tile.png')
 
         # Internal settings
-        self.name = name  # Menace file name
         self.cell_size = 100  # Size of a game cell
         self.player = 'X'  # Current player
         self.state = 'menu'  # Current state
@@ -60,10 +59,8 @@ see debug log for progress.')
 
     # ____Event handlers____
     def on_quit(self, event):
-        print('Saving menace to', self.menace.name)
         self.menace.save()
         self.running = False
-        print('Menace saved')
         print('Exiting')
 
     def on_mouse_down(self, event):
@@ -89,8 +86,8 @@ see debug log for progress.')
                 self.reset()
                 print('Starting training session')
                 self.menace.save()
-                trainer.train(self.name, 50000)
-                self.menace = menace.MENACE(self.name)
+                trainer.train(self.menace.name, 50000)
+                self.menace = menace.MENACE(self.menace.name)
                 print('Training done')
 
             if self.b_quit.is_hover(event.pos):
@@ -199,5 +196,6 @@ see debug log for progress.')
 
 
 if __name__ == '__main__':
-    app = TicTacToe('MENACE0')
+    name = input('Enter file name: ')
+    app = TicTacToe(name)
     app.mainloop()

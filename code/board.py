@@ -1,7 +1,9 @@
 class Board(object):
     def __init__(self):
+        # Current board state
         self.current_state = [[0 for _ in range(3)] for _ in range(3)]
-        self.current_player = 'X'
+        self.hist = {'X': [], 'O': []}  # Game history
+        self.current_player = 'X'  # Current expected player
 
     def verify_move(self, pos, player):
         # Returns True if the correct player sends av valid move
@@ -22,6 +24,7 @@ class Board(object):
         if self.verify_move(pos, player):
             x, y = pos
             self.current_state[y][x] = player
+            self.hist[self.current_player].append(pos)
             self.current_player = 'X' if player == 'O' else 'O'
             return 0
         return -1
@@ -68,33 +71,3 @@ class Board(object):
         for y in range(3):
             for x in range(3):
                 yield (x, y), self.current_state[y][x]
-
-
-if __name__ == '__main__':
-    def loop(p):
-        board = [[0 for _ in range(3)] for _ in range(3)]
-        for (x, y), s in b.output_board():
-            board[y][x] = s if s else '-'
-
-        for row in board:
-            for col in row:
-                print(col, end=' ')
-            print()
-
-        pos = [int(i) for i in input('> ').split(',')]
-        while not b.update(pos, p):
-            pos = [int(i) for i in input('> ').split(',')]
-
-    b = Board()
-    p = 'X'
-    loop(p)
-    while not b.is_win():
-        p = 'X' if p == 'O' else 'O'
-        loop(p)
-
-    print()
-    if type(b.is_win()).__name__ == 'str':
-        print('Winner is:', b.is_win())
-    else:
-        print("It's a draw!")
-    input()
